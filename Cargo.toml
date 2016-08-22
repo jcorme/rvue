@@ -1,0 +1,6 @@
+[package]
+name = "rvue"
+version = "0.1.0"
+authors = ["Jason Chen <me@nulle.xyz>"]
+
+[dependencies]
