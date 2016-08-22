@@ -1,6 +1,2 @@
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-    }
-}
+extern crate hyper;
+extern crate xml;

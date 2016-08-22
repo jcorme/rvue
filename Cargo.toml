@@ -4,3 +4,5 @@ version = "0.1.0"
 authors = ["Jason Chen <me@nulle.xyz>"]
 
 [dependencies]
+hyper = { git = "https://github.com/hyperium/hyper" }
+xml-rs = "0.3.4"
