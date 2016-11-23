@@ -4,5 +4,7 @@ version = "0.1.0"
 authors = ["Jason Chen <me@nulle.xyz>"]
 
 [dependencies]
+chrono = "*"
 hyper = { git = "https://github.com/hyperium/hyper" }
+regex = "*"
 xml-rs = "0.3.4"
