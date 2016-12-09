@@ -5,6 +5,6 @@ authors = ["Jason Chen <me@nulle.xyz>"]
 
 [dependencies]
 chrono = "*"
-hyper = { git = "https://github.com/hyperium/hyper" }
 regex = "*"
+reqwest = "*"
 xml-rs = "0.3.4"
