@@ -8,9 +8,9 @@ use xml::reader::{Events, XmlEvent as ReaderEvent};
 
 #[derive(Debug)]
 pub struct Gradebook {
-    courses: Vec<Course>,
-    reporting_period: ReportingPeriod,
-    reporting_periods: Vec<ReportPeriod>,
+    pub courses: Vec<Course>,
+    pub reporting_period: ReportingPeriod,
+    pub reporting_periods: Vec<ReportPeriod>,
 }
 
 impl SVUEDecodeable for Gradebook {
@@ -66,10 +66,10 @@ impl SVUEDecodeable for Gradebook {
 
 #[derive(Debug)]
 pub struct ReportPeriod {
-    end_date: NaiveDate,
-    grade_period: String,
-    index: i8,
-    start_date: NaiveDate,
+    pub end_date: NaiveDate,
+    pub grade_period: String,
+    pub index: i8,
+    pub start_date: NaiveDate,
 }
 
 impl SVUEDecodeable for ReportPeriod {
@@ -97,9 +97,9 @@ impl SVUEDecodeable for ReportPeriod {
 
 #[derive(Debug)]
 pub struct ReportingPeriod {
-    end_date: NaiveDate,
-    grade_period: String,
-    start_date: NaiveDate,
+    pub end_date: NaiveDate,
+    pub grade_period: String,
+    pub start_date: NaiveDate,
 }
 
 impl Default for ReportingPeriod {
@@ -165,13 +165,13 @@ impl CourseTitle {
 
 #[derive(Debug)]
 pub struct Course {
-    highlight_percentage_cut_off_for_progress_bar: i8,
-    marks: Vec<Mark>,
-    period: i8,
-    room: String,
-    staff: String,
-    staff_email: String,
-    title: CourseTitle,
+    pub highlight_percentage_cut_off_for_progress_bar: i8,
+    pub marks: Vec<Mark>,
+    pub period: i8,
+    pub room: String,
+    pub staff: String,
+    pub staff_email: String,
+    pub title: CourseTitle,
 }
 
 impl SVUEDecodeable for Course {
@@ -243,12 +243,12 @@ impl SVUEDecodeable for Course {
 
 #[derive(Debug)]
 pub struct Mark {
-    assignments: Vec<Assignment>,
-    calculated_score_raw: f64,
-    calculated_score_string: String,
-    grade_calculation_summary: Vec<AssignmentGradeCalc>,
-    mark_name: String,
-    standard_views: Vec<StandardView>,
+    pub assignments: Vec<Assignment>,
+    pub calculated_score_raw: f64,
+    pub calculated_score_string: String,
+    pub grade_calculation_summary: Vec<AssignmentGradeCalc>,
+    pub mark_name: String,
+    pub standard_views: Vec<StandardView>,
 }
 
 impl SVUEDecodeable for Mark {
@@ -327,14 +327,14 @@ impl SVUEDecodeable for Mark {
 
 #[derive(Debug)]
 pub struct StandardView {
-    cal_value: f64,
-    description: String,
-    mark: String,
-    proficiency: Option<f64>,
-    proficiency_max_value: f64,
-    standard_assignment_views: Vec<StandardAssignmentView>,
-    subject: String,
-    subject_id: i8,
+    pub cal_value: f64,
+    pub description: String,
+    pub mark: String,
+    pub proficiency: Option<f64>,
+    pub proficiency_max_value: f64,
+    pub standard_assignment_views: Vec<StandardAssignmentView>,
+    pub subject: String,
+    pub subject_id: i8,
 }
 
 impl SVUEDecodeable for StandardView {
@@ -407,14 +407,14 @@ impl SVUEDecodeable for StandardView {
 
 #[derive(Debug)]
 pub struct StandardAssignmentView {
-    _type: String,
-    assignment: String,
-    cal_value: f64,
-    due_date: NaiveDate,
-    gradebook_id: String,
-    mark: String,
-    proficiency: Option<f64>,
-    proficiency_max_value: f64,
+    pub _type: String,
+    pub assignment: String,
+    pub cal_value: f64,
+    pub due_date: NaiveDate,
+    pub gradebook_id: String,
+    pub mark: String,
+    pub proficiency: Option<f64>,
+    pub proficiency_max_value: f64,
 }
 
 impl SVUEDecodeable for StandardAssignmentView {
@@ -456,13 +456,13 @@ impl SVUEDecodeable for StandardAssignmentView {
 
 #[derive(Debug)]
 pub struct AssignmentGradeCalc {
-    _type: String,
-    calculated_mark: String,
-    points: f64,
-    points_possible: f64,
+    pub _type: String,
+    pub calculated_mark: String,
+    pub points: f64,
+    pub points_possible: f64,
     // this is a percentage
-    weight: AssignmentGradeCalcWeight,
-    weighted_pct: AssignmentGradeCalcWeight,
+    pub weight: AssignmentGradeCalcWeight,
+    pub weighted_pct: AssignmentGradeCalcWeight,
 }
 
 impl SVUEDecodeable for AssignmentGradeCalc {
@@ -521,21 +521,21 @@ impl AssignmentGradeCalcWeight {
 
 #[derive(Debug)]
 pub struct Assignment {
-    _type: String,
-    gradebook_id: String,
-    measure: String,
-    date: NaiveDate,
-    due_date: NaiveDate,
-    score: AssignmentScore,
-    score_type: String,
-    points: AssignmentPoints,
-    notes: String,
-    teacher_id: String,
-    student_id: String,
-    has_drop_box: bool,
-    drop_start_date: NaiveDate,
-    drop_end_date: NaiveDate,
-    standards: Vec<Standard>,
+    pub _type: String,
+    pub gradebook_id: String,
+    pub measure: String,
+    pub date: NaiveDate,
+    pub due_date: NaiveDate,
+    pub score: AssignmentScore,
+    pub score_type: String,
+    pub points: AssignmentPoints,
+    pub notes: String,
+    pub teacher_id: String,
+    pub student_id: String,
+    pub has_drop_box: bool,
+    pub drop_start_date: NaiveDate,
+    pub drop_end_date: NaiveDate,
+    pub standards: Vec<Standard>,
 }
 
 impl SVUEDecodeable for Assignment {
@@ -708,12 +708,12 @@ impl AssignmentPoints {
 
 #[derive(Debug)]
 pub struct Standard {
-    subject: String,
-    mark: String,
-    description: String,
-    proficiency: Option<f64>,
-    proficiency_max_value: f64,
-    standard_screen_assignments: Vec<StandardScreenAssignment>,
+    pub subject: String,
+    pub mark: String,
+    pub description: String,
+    pub proficiency: Option<f64>,
+    pub proficiency_max_value: f64,
+    pub standard_screen_assignments: Vec<StandardScreenAssignment>,
 }
 
 impl SVUEDecodeable for Standard {
@@ -781,12 +781,12 @@ impl SVUEDecodeable for Standard {
 
 #[derive(Debug)]
 pub struct StandardScreenAssignment {
-    _type: String,
-    assignment: String,
-    due_date: NaiveDate,
-    mark: String,
-    proficiency: Option<f64>,
-    proficiency_max_value: f64,
+    pub _type: String,
+    pub assignment: String,
+    pub due_date: NaiveDate,
+    pub mark: String,
+    pub proficiency: Option<f64>,
+    pub proficiency_max_value: f64,
 }
 
 impl SVUEDecodeable for StandardScreenAssignment {
