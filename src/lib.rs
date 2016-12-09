@@ -5,4 +5,5 @@ extern crate xml;
 
 #[macro_use]
 mod decoder;
+mod diff;
 mod gradebook;

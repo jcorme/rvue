@@ -1,6 +1,7 @@
 use std::str::FromStr;
 
 use decoder::*;
+use diff::Pairable;
 
 use chrono::NaiveDate;
 use regex::Regex;
@@ -134,7 +135,7 @@ impl SVUEDecodeable for ReportingPeriod {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub enum CourseTitle {
     Parsed(String, String),
     Unparseable(String),
@@ -172,6 +173,12 @@ pub struct Course {
     pub staff: String,
     pub staff_email: String,
     pub title: CourseTitle,
+}
+
+impl<'a> Pairable<'a, CourseTitle> for Course {
+    fn unique_key(&'a self) -> &'a CourseTitle {
+        &self.title
+    }
 }
 
 impl SVUEDecodeable for Course {
@@ -538,6 +545,12 @@ pub struct Assignment {
     pub standards: Vec<Standard>,
 }
 
+impl<'a> Pairable<'a, String> for Assignment {
+    fn unique_key(&'a self) -> &'a String {
+        &self.gradebook_id
+    }
+}
+
 impl SVUEDecodeable for Assignment {
     fn from_event(event: ReaderEvent, events_iter: &mut Events<&[u8]>) -> DecoderResult<Assignment> {
         match event.clone() {
@@ -620,7 +633,7 @@ impl SVUEDecodeable for Assignment {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum AssignmentScore {
     NotDue,
     NotForGrading,
@@ -670,7 +683,7 @@ impl AssignmentScore {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum AssignmentPoints {
     Ungraded(f64),
     Graded(f64, f64),
