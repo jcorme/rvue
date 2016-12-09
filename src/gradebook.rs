@@ -6,7 +6,7 @@ use chrono::NaiveDate;
 use regex::Regex;
 use xml::reader::{Events, XmlEvent as ReaderEvent};
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Gradebook {
     pub courses: Vec<Course>,
     pub reporting_period: ReportingPeriod,
@@ -64,7 +64,7 @@ impl SVUEDecodeable for Gradebook {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct ReportPeriod {
     pub end_date: NaiveDate,
     pub grade_period: String,
@@ -95,7 +95,7 @@ impl SVUEDecodeable for ReportPeriod {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct ReportingPeriod {
     pub end_date: NaiveDate,
     pub grade_period: String,
@@ -134,7 +134,7 @@ impl SVUEDecodeable for ReportingPeriod {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum CourseTitle {
     Parsed(String, String),
     Unparseable(String),
@@ -163,7 +163,7 @@ impl CourseTitle {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Course {
     pub highlight_percentage_cut_off_for_progress_bar: i8,
     pub marks: Vec<Mark>,
@@ -241,7 +241,7 @@ impl SVUEDecodeable for Course {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Mark {
     pub assignments: Vec<Assignment>,
     pub calculated_score_raw: f64,
@@ -325,7 +325,7 @@ impl SVUEDecodeable for Mark {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct StandardView {
     pub cal_value: f64,
     pub description: String,
@@ -405,7 +405,7 @@ impl SVUEDecodeable for StandardView {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct StandardAssignmentView {
     pub _type: String,
     pub assignment: String,
@@ -454,7 +454,7 @@ impl SVUEDecodeable for StandardAssignmentView {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct AssignmentGradeCalc {
     pub _type: String,
     pub calculated_mark: String,
@@ -497,7 +497,7 @@ impl SVUEDecodeable for AssignmentGradeCalc {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum AssignmentGradeCalcWeight {
     Percentage(f64),
     Unparseable(String),
@@ -519,7 +519,7 @@ impl AssignmentGradeCalcWeight {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Assignment {
     pub _type: String,
     pub gradebook_id: String,
@@ -620,7 +620,7 @@ impl SVUEDecodeable for Assignment {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum AssignmentScore {
     NotDue,
     NotForGrading,
@@ -670,7 +670,7 @@ impl AssignmentScore {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum AssignmentPoints {
     Ungraded(f64),
     Graded(f64, f64),
@@ -706,7 +706,7 @@ impl AssignmentPoints {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Standard {
     pub subject: String,
     pub mark: String,
@@ -779,7 +779,7 @@ impl SVUEDecodeable for Standard {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct StandardScreenAssignment {
     pub _type: String,
     pub assignment: String,
