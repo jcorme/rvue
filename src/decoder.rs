@@ -17,6 +17,7 @@ pub type DecoderResult<T> = Result<T, DecodingError>;
 pub enum DecodingError {
     BoolParseError(String, ParseBoolError),
     DateParseError(String, chrono::ParseError),
+    SVUEErrorParsingFailed(String),
     EventError(ReaderError),
     FloatParseError(String, ParseFloatError),
     IntegerParseError(String, ParseIntError),

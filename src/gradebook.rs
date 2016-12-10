@@ -1,11 +1,12 @@
 use std::str::FromStr;
 
+use api::{SVUEAPIAction, SVUERequest, SVUERequestError};
 use decoder::*;
 use diff::Pairable;
 
 use chrono::NaiveDate;
 use regex::Regex;
-use xml::reader::{Events, XmlEvent as ReaderEvent};
+use xml::reader::{Events, EventReader, XmlEvent as ReaderEvent};
 
 macro_rules! field_slice_helpers {
     ( $t:ty, { $($field:tt => $field_t:ty),+ } ) => {
@@ -31,6 +32,25 @@ field_slice_helpers!(Gradebook, {
     courses => Course,
     reporting_periods => ReportPeriod
 });
+
+impl Gradebook {
+    pub fn retrieve<'a>(user: &'a str, password: &'a str) -> Result<Gradebook, SVUERequestError> {
+        Self::retrieve_for_grade_period(user, password, -1)
+    }
+
+    pub fn retrieve_for_grade_period<'a>(user: &'a str, password: &'a str, period: i8) -> Result<Gradebook, SVUERequestError> {
+        let action = if period < 0 {
+            SVUEAPIAction::RetrieveGrades(None)
+        } else {
+            SVUEAPIAction::RetrieveGrades(Some(period))
+        };
+        let resp = SVUERequest::perform(action, (user, password))?;
+        let mut events_iter = EventReader::new(resp.xml.as_bytes()).into_iter();
+
+        Self::from_event(events_iter.next().unwrap().unwrap(), &mut events_iter)
+            .map_err(|e| SVUERequestError::DecodingError(e))
+    }
+}
 
 impl SVUEDecodeable for Gradebook {
     fn from_event(_: ReaderEvent, events_iter: &mut Events<&[u8]>) -> DecoderResult<Gradebook> {
