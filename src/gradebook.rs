@@ -7,12 +7,30 @@ use chrono::NaiveDate;
 use regex::Regex;
 use xml::reader::{Events, XmlEvent as ReaderEvent};
 
+macro_rules! field_slice_helpers {
+    ( $t:ty, { $($field:tt => $field_t:ty),+ } ) => {
+        impl $t {
+            $(
+                #[allow(dead_code)]
+                pub fn $field(&self) -> &[$field_t] {
+                    self.$field.as_slice()
+                }
+            )+
+        }
+    };
+}
+
 #[derive(Clone, Debug)]
 pub struct Gradebook {
     pub courses: Vec<Course>,
     pub reporting_period: ReportingPeriod,
     pub reporting_periods: Vec<ReportPeriod>,
 }
+
+field_slice_helpers!(Gradebook, {
+    courses => Course,
+    reporting_periods => ReportPeriod
+});
 
 impl SVUEDecodeable for Gradebook {
     fn from_event(_: ReaderEvent, events_iter: &mut Events<&[u8]>) -> DecoderResult<Gradebook> {
@@ -175,6 +193,10 @@ pub struct Course {
     pub title: CourseTitle,
 }
 
+field_slice_helpers!(Course, {
+    marks => Mark
+});
+
 impl<'a> Pairable<'a, CourseTitle> for Course {
     fn unique_key(&'a self) -> &'a CourseTitle {
         &self.title
@@ -257,6 +279,12 @@ pub struct Mark {
     pub mark_name: String,
     pub standard_views: Vec<StandardView>,
 }
+
+field_slice_helpers!(Mark, {
+    assignments => Assignment,
+    grade_calculation_summary => AssignmentGradeCalc,
+    standard_views => StandardView
+});
 
 impl SVUEDecodeable for Mark {
     fn from_event(event: ReaderEvent, events_iter: &mut Events<&[u8]>) -> DecoderResult<Mark> {
@@ -343,6 +371,10 @@ pub struct StandardView {
     pub subject: String,
     pub subject_id: i8,
 }
+
+field_slice_helpers!(StandardView, {
+    standard_assignment_views => StandardAssignmentView
+});
 
 impl SVUEDecodeable for StandardView {
     fn from_event(event: ReaderEvent, events_iter: &mut Events<&[u8]>) -> DecoderResult<StandardView> {
@@ -545,6 +577,10 @@ pub struct Assignment {
     pub standards: Vec<Standard>,
 }
 
+field_slice_helpers!(Assignment, {
+    standards => Standard
+});
+
 impl<'a> Pairable<'a, String> for Assignment {
     fn unique_key(&'a self) -> &'a String {
         &self.gradebook_id
@@ -728,6 +764,10 @@ pub struct Standard {
     pub proficiency_max_value: f64,
     pub standard_screen_assignments: Vec<StandardScreenAssignment>,
 }
+
+field_slice_helpers!(Standard, {
+    standard_screen_assignments => StandardScreenAssignment
+});
 
 impl SVUEDecodeable for Standard {
     fn from_event(event: ReaderEvent, events_iter: &mut Events<&[u8]>) -> DecoderResult<Standard> {

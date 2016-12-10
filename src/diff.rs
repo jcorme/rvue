@@ -9,12 +9,15 @@ pub trait Pairable<'a, K> {
     fn unique_key(&'a self) -> &'a K;
 }
 
-impl<'a, K> Pairable<'a, K>
-    where K: 'a + Eq + Hash {
+pub trait PairableCollection<'a, K, V> {
+    fn pair_with(&self, new: &'a [V]) -> Vec<(Option<&'a V>, Option<&'a V>)>;
+}
 
-    fn pair_values<V>(old: &'a [V], new: &'a [V]) -> Vec<(Option<&'a V>, Option<&'a V>)>
-        where V: Pairable<'a, K> {
+impl <'a, K, V> PairableCollection<'a, K, V>
+    where K: 'a + Eq + Hash,
+          V: Pairable<'a, K> {
 
+    fn pair_values(old: &'a [V], new: &'a [V]) -> Vec<(Option<&'a V>, Option<&'a V>)> {
         let mut new = Self::keyed_values_to_map(new);
         let mut pairs = Vec::new();
 
@@ -33,10 +36,17 @@ impl<'a, K> Pairable<'a, K>
     }
 
     #[inline]
-    fn keyed_values_to_map<V>(values: &'a [V]) -> HashMap<&'a K, &'a V>
-        where V: Pairable<'a, K> {
-
+    fn keyed_values_to_map(values: &'a [V]) -> HashMap<&'a K, &'a V> {
         values.iter().fold(HashMap::new(), |mut acc, v| { acc.insert(v.unique_key(), v); acc })
+    }
+}
+
+impl<'a, K, V> PairableCollection<'a, K, V> for &'a [V]
+    where K: 'a + Eq + Hash,
+          V: Pairable<'a, K> {
+
+    fn pair_with(&self, new: &'a [V]) -> Vec<(Option<&'a V>, Option<&'a V>)> {
+        PairableCollection::pair_values(self, new)
     }
 }
 
@@ -49,7 +59,7 @@ pub struct Changeset<'a> {
 
 impl<'a> Changeset<'a> {
     pub fn diff(old: &'a Gradebook, new: &'a Gradebook) -> Option<Changeset<'a>> {
-        let pairs = Pairable::pair_values(&old.courses, &new.courses);
+        let pairs = old.courses().pair_with(new.courses());
         let mut changes = Vec::new();
 
         for &(o, n) in pairs.iter() {
@@ -200,7 +210,7 @@ impl<'a> CourseChanges<'a> {
     }
 
     fn diff_assignments(old: &'a Mark, new: &'a Mark) -> Vec<AssignmentChanges<'a>> {
-        let pairs = Pairable::pair_values(&old.assignments, &new.assignments);
+        let pairs = old.assignments().pair_with(new.assignments());
         let mut changes = Vec::new();
 
         for &(o, n) in pairs.iter() {
