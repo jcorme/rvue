@@ -1,8 +1,13 @@
 [package]
 name = "rvue"
 version = "0.1.0"
+description = "A StudentVUE API client library."
+readme = "README.md"
+documentation = "https://docs.rs/rvue"
+repository = "https://github.com/jcorme/rvue"
 license = "MIT"
 authors = ["Jason Chen <me@nulle.xyz>"]
+keywords = ["studentvue", "parentvue"]
 
 [features]
 serde-serialize = ["serde", "serde_derive"]
