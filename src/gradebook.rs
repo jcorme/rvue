@@ -21,6 +21,7 @@ macro_rules! field_slice_helpers {
     };
 }
 
+#[cfg_attr(feature="serde-serialize", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
 pub struct Gradebook {
     pub courses: Vec<Course>,
@@ -103,6 +104,7 @@ impl SVUEDecodeable for Gradebook {
     }
 }
 
+#[cfg_attr(feature="serde-serialize", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
 pub struct ReportPeriod {
     pub end_date: NaiveDate,
@@ -134,6 +136,7 @@ impl SVUEDecodeable for ReportPeriod {
     }
 }
 
+#[cfg_attr(feature="serde-serialize", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
 pub struct ReportingPeriod {
     pub end_date: NaiveDate,
@@ -173,6 +176,7 @@ impl SVUEDecodeable for ReportingPeriod {
     }
 }
 
+#[cfg_attr(feature="serde-serialize", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub enum CourseTitle {
     Parsed(String, String),
@@ -202,6 +206,7 @@ impl CourseTitle {
     }
 }
 
+#[cfg_attr(feature="serde-serialize", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
 pub struct Course {
     pub highlight_percentage_cut_off_for_progress_bar: i8,
@@ -290,6 +295,7 @@ impl SVUEDecodeable for Course {
     }
 }
 
+#[cfg_attr(feature="serde-serialize", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
 pub struct Mark {
     pub assignments: Vec<Assignment>,
@@ -380,6 +386,7 @@ impl SVUEDecodeable for Mark {
     }
 }
 
+#[cfg_attr(feature="serde-serialize", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
 pub struct StandardView {
     pub cal_value: f64,
@@ -464,6 +471,7 @@ impl SVUEDecodeable for StandardView {
     }
 }
 
+#[cfg_attr(feature="serde-serialize", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
 pub struct StandardAssignmentView {
     pub _type: String,
@@ -513,6 +521,7 @@ impl SVUEDecodeable for StandardAssignmentView {
     }
 }
 
+#[cfg_attr(feature="serde-serialize", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
 pub struct AssignmentGradeCalc {
     pub _type: String,
@@ -556,6 +565,7 @@ impl SVUEDecodeable for AssignmentGradeCalc {
     }
 }
 
+#[cfg_attr(feature="serde-serialize", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
 pub enum AssignmentGradeCalcWeight {
     Percentage(f64),
@@ -578,6 +588,7 @@ impl AssignmentGradeCalcWeight {
     }
 }
 
+#[cfg_attr(feature="serde-serialize", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
 pub struct Assignment {
     pub _type: String,
@@ -689,6 +700,7 @@ impl SVUEDecodeable for Assignment {
     }
 }
 
+#[cfg_attr(feature="serde-serialize", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug, PartialEq)]
 pub enum AssignmentScore {
     NotDue,
@@ -739,6 +751,7 @@ impl AssignmentScore {
     }
 }
 
+#[cfg_attr(feature="serde-serialize", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug, PartialEq)]
 pub enum AssignmentPoints {
     Ungraded(f64),
@@ -775,6 +788,7 @@ impl AssignmentPoints {
     }
 }
 
+#[cfg_attr(feature="serde-serialize", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
 pub struct Standard {
     pub subject: String,
@@ -852,6 +866,7 @@ impl SVUEDecodeable for Standard {
     }
 }
 
+#[cfg_attr(feature="serde-serialize", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
 pub struct StandardScreenAssignment {
     pub _type: String,

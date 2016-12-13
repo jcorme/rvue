@@ -3,8 +3,14 @@ name = "rvue"
 version = "0.1.0"
 authors = ["Jason Chen <me@nulle.xyz>"]
 
+[features]
+serde-serialize = ["serde", "serde_derive"]
+
 [dependencies]
-chrono = "*"
+chrono = { version = "*", features = ["serde"] }
 regex = "*"
 reqwest = "*"
 xml-rs = "0.3.4"
+
+serde = { version = "0.8", optional = true }
+serde_derive = { version = "0.8", optional = true }
