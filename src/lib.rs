@@ -9,6 +9,6 @@ extern crate xml;
 
 #[macro_use]
 mod decoder;
-mod api;
-mod diff;
-mod gradebook;
+pub mod api;
+pub mod diff;
+pub mod gradebook;
