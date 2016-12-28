@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::hash::Hash;
+use std::iter::IntoIterator;
 
 use gradebook::*;
 
@@ -9,44 +10,63 @@ pub trait Pairable<'a, K> {
     fn unique_key(&'a self) -> &'a K;
 }
 
-pub trait PairableCollection<'a, K, V> {
-    fn pair_with(&self, new: &'a [V]) -> Vec<(Option<&'a V>, Option<&'a V>)>;
+pub trait IntoHashMap<'a, K, V> {
+    fn into_hash_map(self) -> HashMap<&'a K, &'a V>;
 }
 
-impl <'a, K, V> PairableCollection<'a, K, V>
-    where K: 'a + Eq + Hash,
-          V: Pairable<'a, K> {
-
-    fn pair_values(old: &'a [V], new: &'a [V]) -> Vec<(Option<&'a V>, Option<&'a V>)> {
-        let mut new = Self::keyed_values_to_map(new);
-        let mut pairs = Vec::new();
-
-        for val in old.iter() {
-            match new.remove(val.unique_key()) {
-                Some(v) => { pairs.push((Some(val), Some(v))); }
-                None => { pairs.push((Some(val), None)); }
-            }
-        }
-
-        for (_, val) in new.iter() {
-            pairs.push((None, Some(val)));
-        }
-
-        pairs
-    }
+impl<'a, C, K, V> IntoHashMap<'a, K, V> for C
+    where C: IntoIterator<Item=&'a V>,
+          K: 'a + Eq + Hash,
+          V: 'a + Pairable<'a, K> {
 
     #[inline]
-    fn keyed_values_to_map(values: &'a [V]) -> HashMap<&'a K, &'a V> {
-        values.iter().fold(HashMap::new(), |mut acc, v| { acc.insert(v.unique_key(), v); acc })
+    fn into_hash_map(self) -> HashMap<&'a K, &'a V> {
+        self.into_iter().fold(HashMap::new(), |mut acc, v| { acc.insert(v.unique_key(), v); acc })
     }
 }
 
-impl<'a, K, V> PairableCollection<'a, K, V> for &'a [V]
-    where K: 'a + Eq + Hash,
-          V: Pairable<'a, K> {
+pub trait PairableCollection<'a, C, K, V> {
+    fn pair_with(&'a self, new: C) -> Vec<(Option<&'a V>, Option<&'a V>)>;
+}
 
-    fn pair_with(&self, new: &'a [V]) -> Vec<(Option<&'a V>, Option<&'a V>)> {
-        PairableCollection::pair_values(self, new)
+fn pair_values<'a, O, N, K, V>(old: O, new: N) -> Vec<(Option<&'a V>, Option<&'a V>)>
+    where O: IntoIterator<Item=&'a V>,
+          N: IntoHashMap<'a, K, V> + IntoIterator<Item=&'a V>,
+          K: 'a + Eq + Hash,
+          V: 'a + Pairable<'a, K> {
+
+    let mut new = new.into_hash_map();
+    let mut pairs = Vec::new();
+
+    for val in old.into_iter() {
+        match new.remove(val.unique_key()) {
+            Some(v) => { pairs.push((Some(val), Some(v))); }
+            None => { pairs.push((Some(val), None)); }
+        }
+    }
+
+    for (_, val) in new.iter() {
+        pairs.push((None, Some(val)));
+    }
+
+    pairs
+}
+
+impl<'a, K, V> PairableCollection<'a, &'a [V], K, V> for [V]
+    where K: 'a + Eq + Hash,
+          V: 'a + Pairable<'a, K> {
+
+    fn pair_with(&'a self, new: &'a [V]) -> Vec<(Option<&'a V>, Option<&'a V>)> {
+        pair_values(self, new)
+    }
+}
+
+impl<'a, K, V> PairableCollection<'a, &'a Vec<V>, K, V> for Vec<V>
+    where K: 'a + Eq + Hash,
+          V: 'a + Pairable<'a, K> {
+
+    fn pair_with(&'a self, new: &'a Vec<V>) -> Vec<(Option<&'a V>, Option<&'a V>)> {
+        pair_values(self.as_slice(), new.as_slice())
     }
 }
 
