@@ -50,7 +50,7 @@ impl<'a, K, V> PairableCollection<'a, K, V> for &'a [V]
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Changeset<'a> {
     pub old: &'a Gradebook,
     pub new: &'a Gradebook,
@@ -81,7 +81,7 @@ impl<'a> Changeset<'a> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct CourseChanges<'a> {
     pub old: Option<&'a Course>,
     pub new: Option<&'a Course>,
@@ -89,7 +89,7 @@ pub struct CourseChanges<'a> {
     pub changes: Option<Vec<CourseChange<'a>>>,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum CourseChange<'a> {
     Added,
     Dropped,
@@ -100,14 +100,14 @@ pub enum CourseChange<'a> {
     //changes, rvue assumes it's a different course
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct AssignmentChanges<'a> {
     pub old: Option<&'a Assignment>,
     pub new: Option<&'a Assignment>,
     pub changes: Vec<AssignmentChange<'a>>,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum AssignmentChange<'a> {
     Added,
     DateChange { old: &'a NaiveDate, new: &'a NaiveDate },
