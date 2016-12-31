@@ -196,22 +196,17 @@ impl<'a> SVUERequest<'a> {
         headers.set(ContentType("text/xml; charset=utf-8".parse().unwrap()));
         headers.set_raw("SOAPAction", vec![SOAP_ACTION.to_vec()]);
 
-        let raw_resp = client.post(SVUE_ENDPOINT)
+        let mut buffer = String::new();
+        client.post(SVUE_ENDPOINT)
             .headers(headers)
             .body(body)
-            .send();
-
-        let mut buffer = String::new();
-
-        match raw_resp {
-            Ok(mut raw) => {
-                match raw.read_to_string(&mut buffer) {
-                    Ok(_) => { SVUEResponse::new_from_raw(&buffer, self.action.as_str(), self.action.clone()) }
-                    Err(e) => { Err(SVUERequestError::ResponseReadError(e)) }
-                }
-            }
-            Err(e) => { Err(SVUERequestError::ReqwestError(e)) }
-        }
+            .send()
+            .map_err(|e| SVUERequestError::ReqwestError(e))
+            .map(|mut r| {
+                r.read_to_string(&mut buffer)
+                    .map(|_| SVUEResponse::new_from_raw(&buffer, self.action.as_str(), self.action.clone()))
+                    .map_err(|e| SVUERequestError::ResponseReadError(e))?
+            })?
     }
 
     fn build_body(&self) -> XmlResult<Vec<u8>> {
