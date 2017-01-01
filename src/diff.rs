@@ -36,19 +36,16 @@ fn pair_values<'a, O, N, K, V>(old: O, new: N) -> Vec<(Option<&'a V>, Option<&'a
           V: 'a + Pairable<'a, K> {
 
     let mut new = new.into_hash_map();
-    let mut pairs = Vec::new();
-
-    for val in old.into_iter() {
-        match new.remove(val.unique_key()) {
-            Some(v) => { pairs.push((Some(val), Some(v))); }
-            None => { pairs.push((Some(val), None)); }
-        }
-    }
-
-    for (_, val) in new.iter() {
-        pairs.push((None, Some(val)));
-    }
-
+    let mut pairs = old.into_iter().fold(Vec::new(), |mut acc, val| {
+        acc.push((Some(val), new.remove(val.unique_key())));
+        acc
+    });
+    let mut new_vals: Vec<(Option<&'a V>, Option<&'a V>)> = new.iter()
+        .fold(Vec::new(), |mut acc, (_, val)| {
+            acc.push((None, Some(val)));
+            acc
+        });
+    pairs.append(&mut new_vals);
     pairs
 }
 
@@ -80,14 +77,12 @@ pub struct Changeset<'a> {
 impl<'a> Changeset<'a> {
     pub fn diff(old: &'a Gradebook, new: &'a Gradebook) -> Option<Changeset<'a>> {
         let pairs = old.courses().pair_with(new.courses());
-        let mut changes = Vec::new();
-
-        for &(o, n) in pairs.iter() {
-            match CourseChanges::diff(o, n) {
-                Some(ccs) => { changes.push(ccs); }
-                None => {}
+        let changes = pairs.iter().fold(Vec::new(), |mut acc, &(o, n)| {
+            if let Some(ccs) = CourseChanges::diff(o, n) {
+                acc.push(ccs);
             }
-        }
+            acc
+        });
 
         if changes.is_empty() {
             None
@@ -217,8 +212,13 @@ impl<'a> CourseChanges<'a> {
                     }
                 }
             }
-            (Some(_), None) => { course_changes.changes = Some(vec![CourseChange::Dropped]); }
-            (None, Some(_)) => { course_changes.changes = Some(vec![CourseChange::Added]); }
+            (Some(_), _) | (None, Some(_)) => {
+                course_changes.changes = Some(vec![if old.is_none() {
+                    CourseChange::Added
+                } else {
+                    CourseChange::Dropped
+                }])
+            }
             (None, None) => { return None; }
         }
 
@@ -231,34 +231,28 @@ impl<'a> CourseChanges<'a> {
 
     fn diff_assignments(old: &'a Mark, new: &'a Mark) -> Vec<AssignmentChanges<'a>> {
         let pairs = old.assignments().pair_with(new.assignments());
-        let mut changes = Vec::new();
-
-        for &(o, n) in pairs.iter() {
+        pairs.iter().fold(Vec::new(), |mut acc, &(o, n)| {
             match (o, n) {
                 (Some(ref a1), Some(ref a2)) => {
-                    match AssignmentChanges::diff(a1, a2) {
-                        Some(acs) => { changes.push(acs); }
-                        None => {}
+                    if let Some(acs) = AssignmentChanges::diff(a1, a2) {
+                        acc.push(acs);
                     }
+                    acc
                 }
-                (Some(ref a1), None) => {
-                    changes.push(AssignmentChanges {
-                        old: Some(a1),
-                        new: None,
-                        changes: vec![AssignmentChange::Removed],
+                (Some(_), _) | (_, Some(_)) => {
+                    acc.push(AssignmentChanges {
+                        old: o,
+                        new: n,
+                        changes: vec![if o.is_none() {
+                            AssignmentChange::Added
+                        } else {
+                            AssignmentChange::Removed
+                        }]
                     });
+                    acc
                 }
-                (None, Some(ref a2)) => {
-                    changes.push(AssignmentChanges {
-                        old: None,
-                        new: Some(a2),
-                        changes: vec![AssignmentChange::Added],
-                    });
-                }
-                (None, None) => {}
+                _ => acc
             }
-        }
-
-        changes
+        })
     }
 }
