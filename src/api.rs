@@ -1,16 +1,12 @@
 use std::io::{self, Read};
 use std::ops::Deref;
-use std::sync::mpsc;
 
 use decoder::*;
-use diff::*;
-use gradebook::*;
 
 use reqwest;
 use reqwest::header::{ContentType, Headers};
 use xml::escape::escape_str_attribute;
-use xml::reader::{Error as ReaderError, Events, XmlEvent as ReaderEvent};
-use xml::reader::EventReader;
+use xml::reader::{Error as ReaderError, EventReader, XmlEvent as ReaderEvent};
 use xml::writer::{EmitterConfig, Result as XmlResult, XmlEvent};
 
 const SVUE_ENDPOINT: &'static str = "https://student-portland.cascadetech.org/portland/Service/PXPCommunication.asmx";
@@ -138,7 +134,7 @@ impl SVUEResponse {
         let mut error = false;
 
         {
-            let mut reader = EventReader::new(xml.as_bytes());
+            let reader = EventReader::new(xml.as_bytes());
 
             for e in reader {
                 match e {
