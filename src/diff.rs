@@ -143,15 +143,11 @@ macro_rules! add_change {
     };
 }
 
-macro_rules! ass_change {
-    ( $variant:tt, $field:tt, $changes:expr, $old:expr, $new:expr ) => {
-        add_change!(AssignmentChange, $variant, $field, $changes, $old, $new);
-    };
-}
-
-macro_rules! course_change {
-    ( $variant:tt, $field:tt, $changes:expr, $old:expr, $new:expr ) => {
-        add_change!(CourseChange, $variant, $field, $changes, $old, $new);
+macro_rules! diff {
+    ( [$( $field:tt: $variant:tt ),+], $change_t:tt, $changes:expr, $old:expr, $new:expr ) => {
+        $(
+            add_change!($change_t, $variant, $field, $changes, $old, $new);
+        )+
     };
 }
 
@@ -159,13 +155,15 @@ impl<'a> AssignmentChanges<'a> {
     fn diff(old: &'a Assignment, new: &'a Assignment) -> Option<AssignmentChanges<'a>> {
         let mut changes = Vec::new();
 
-        ass_change!(DateChange, date, changes, old, new);
-        ass_change!(DueDateChange, due_date, changes, old, new);
-        ass_change!(NotesChange, notes, changes, old, new);
-        ass_change!(PointsChange, points, changes, old, new);
-        ass_change!(ScoreChange, score, changes, old, new);
-        ass_change!(ScoreTypeChange, score_type, changes, old, new);
-        ass_change!(TitleChange, measure, changes, old, new);
+        diff!([
+            date: DateChange,
+            due_date: DueDateChange,
+            notes: NotesChange,
+            points: PointsChange,
+            score: ScoreChange,
+            score_type: ScoreTypeChange,
+            measure: TitleChange
+        ], AssignmentChange, changes, old, new);
 
         if changes.is_empty() {
             None
@@ -196,9 +194,11 @@ impl<'a> CourseChanges<'a> {
             (Some(ref c1), Some(ref c2)) => {
                 let mut changes = Vec::new();
 
-                course_change!(PeriodChange, period, changes, c1, c2);
-                course_change!(StaffChange, staff, changes, c1, c2);
-                course_change!(StaffEmailChange, staff_email, changes, c1, c2);
+                diff!([
+                    period: PeriodChange,
+                    staff: StaffChange,
+                    staff_email: StaffEmailChange
+                ], CourseChange, changes, c1, c2);
 
                 let assignment_changes = Self::diff_assignments(&c1.marks[0], &c2.marks[0]);
 
