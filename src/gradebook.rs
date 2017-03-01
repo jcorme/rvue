@@ -190,12 +190,12 @@ impl CourseTitle {
 
         match captures {
             Some(cs) => {
-                let name = match cs.at(1) {
-                    Some(n) => n.to_string(),
+                let name = match cs.get(1) {
+                    Some(n) => n.as_str().to_string(),
                     None => return CourseTitle::Unparseable(title.to_string()),
                 };
-                let id = match cs.at(2) {
-                    Some(id) => id.to_string(),
+                let id = match cs.get(2) {
+                    Some(id) => id.as_str().to_string(),
                     None => return CourseTitle::Unparseable(title.to_string()),
                 };
 
@@ -727,8 +727,8 @@ impl AssignmentScore {
 
                 match score_regex.captures(score) {
                     Some(cs) => {
-                        let score = f64::from_str(cs.at(1).unwrap()).unwrap();
-                        let possible_score = f64::from_str(cs.at(2).unwrap()).unwrap();
+                        let score = f64::from_str(cs.get(1).unwrap().as_str()).unwrap();
+                        let possible_score = f64::from_str(cs.get(2).unwrap().as_str()).unwrap();
 
                         AssignmentScore::Score(score, possible_score)
                     }
@@ -737,7 +737,7 @@ impl AssignmentScore {
                         let captures = pct_regex.captures(score);
 
                         if captures.is_some() {
-                            let pct = f64::from_str(captures.unwrap().at(1).unwrap()).unwrap();
+                            let pct = f64::from_str(captures.unwrap().get(1).unwrap().as_str()).unwrap();
 
                             AssignmentScore::Percentage(pct)
                         } else {
@@ -766,7 +766,7 @@ impl AssignmentPoints {
 
             match regex.captures(points) {
                 Some(cs) => {
-                    let possible_points = f64::from_str(cs.at(1).unwrap()).unwrap();
+                    let possible_points = f64::from_str(cs.get(1).unwrap().as_str()).unwrap();
 
                     AssignmentPoints::Ungraded(possible_points)
                 }
@@ -777,8 +777,8 @@ impl AssignmentPoints {
 
             match regex.captures(points) {
                 Some(cs) => {
-                    let points_scored = f64::from_str(cs.at(1).unwrap()).unwrap();
-                    let possible_points = f64::from_str(cs.at(2).unwrap()).unwrap();
+                    let points_scored = f64::from_str(cs.get(1).unwrap().as_str()).unwrap();
+                    let possible_points = f64::from_str(cs.get(2).unwrap().as_str()).unwrap();
 
                     AssignmentPoints::Graded(points_scored, possible_points)
                 }
