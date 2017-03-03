@@ -13,10 +13,10 @@ keywords = ["studentvue", "parentvue"]
 serde-serialize = ["serde", "serde_derive"]
 
 [dependencies]
-chrono = { version = "*", features = ["serde"] }
-regex = "*"
-reqwest = "*"
-xml-rs = "0.3.4"
+chrono = { version = "0.3", features = ["serde"] }
+regex = "0.2.1"
+reqwest = "0.4.0"
+xml-rs = "0.4.0"
 
-serde = { version = "0.8", optional = true }
-serde_derive = { version = "0.8", optional = true }
+serde = { version = "0.9", optional = true }
+serde_derive = { version = "0.9", optional = true }
