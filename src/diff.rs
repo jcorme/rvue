@@ -67,15 +67,16 @@ impl<'a, K, V> PairableCollection<'a, &'a Vec<V>, K, V> for Vec<V>
     }
 }
 
+#[cfg_attr(feature="serde-serialize", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
-pub struct Changeset<'a> {
-    pub old: &'a Gradebook,
-    pub new: &'a Gradebook,
-    pub changes: Vec<CourseChanges<'a>>,
+pub struct Changeset {
+    pub old: Gradebook,
+    pub new: Gradebook,
+    pub changes: Vec<CourseChanges>,
 }
 
-impl<'a> Changeset<'a> {
-    pub fn diff(old: &'a Gradebook, new: &'a Gradebook) -> Option<Changeset<'a>> {
+impl Changeset {
+    pub fn diff(old: &Gradebook, new: &Gradebook) -> Option<Changeset> {
         let pairs = old.courses().pair_with(new.courses());
         let changes = pairs.iter().fold(Vec::new(), |mut acc, &(o, n)| {
             if let Some(ccs) = CourseChanges::diff(o, n) {
@@ -88,57 +89,62 @@ impl<'a> Changeset<'a> {
             None
         } else {
             Some(Changeset {
-                old: old,
-                new: new,
+                old: old.clone(),
+                new: new.clone(),
                 changes: changes,
             })
         }
     }
 }
 
+#[cfg_attr(feature="serde-serialize", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
-pub struct CourseChanges<'a> {
-    pub old: Option<&'a Course>,
-    pub new: Option<&'a Course>,
-    pub assignment_changes: Option<Vec<AssignmentChanges<'a>>>,
-    pub changes: Option<Vec<CourseChange<'a>>>,
+pub struct CourseChanges {
+    pub old: Option<Course>,
+    pub new: Option<Course>,
+    pub assignment_changes: Option<Vec<AssignmentChanges>>,
+    pub changes: Option<Vec<CourseChange>>,
 }
 
+#[cfg_attr(feature="serde-serialize", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
-pub enum CourseChange<'a> {
+pub enum CourseChange {
     Added,
     Dropped,
-    PeriodChange { old: &'a i8, new: &'a i8 },
-    StaffChange { old: &'a str, new: &'a str },
-    StaffEmailChange { old: &'a str, new: &'a str },
+    CalculatedGradeChange { old: String, new: String },
+    PeriodChange { old: i8, new: i8 },
+    StaffChange { old: String, new: String },
+    StaffEmailChange { old: String, new: String },
     //we don't have a course title change because we pair courses by their title; if the title
     //changes, rvue assumes it's a different course
 }
 
+#[cfg_attr(feature="serde-serialize", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
-pub struct AssignmentChanges<'a> {
-    pub old: Option<&'a Assignment>,
-    pub new: Option<&'a Assignment>,
-    pub changes: Vec<AssignmentChange<'a>>,
+pub struct AssignmentChanges {
+    pub old: Option<Assignment>,
+    pub new: Option<Assignment>,
+    pub changes: Vec<AssignmentChange>,
 }
 
+#[cfg_attr(feature="serde-serialize", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
-pub enum AssignmentChange<'a> {
+pub enum AssignmentChange {
     Added,
-    DateChange { old: &'a NaiveDate, new: &'a NaiveDate },
+    DateChange { old: NaiveDate, new: NaiveDate },
     Removed,
-    DueDateChange { old: &'a NaiveDate, new: &'a NaiveDate },
-    NotesChange { old: &'a str, new: &'a str },
-    PointsChange { old: &'a AssignmentPoints, new: &'a AssignmentPoints },
-    ScoreChange { old: &'a AssignmentScore, new: &'a AssignmentScore },
-    ScoreTypeChange { old: &'a str, new: &'a str },
-    TitleChange { old: &'a str, new: &'a str },
+    DueDateChange { old: NaiveDate, new: NaiveDate },
+    NotesChange { old: String, new: String },
+    PointsChange { old: AssignmentPoints, new: AssignmentPoints },
+    ScoreChange { old: AssignmentScore, new: AssignmentScore },
+    ScoreTypeChange { old: String, new: String },
+    TitleChange { old: String, new: String },
 }
 
 macro_rules! add_change {
     ( $change_t:tt, $variant:tt, $field:tt, $changes:expr, $old:expr, $new:expr ) => {
         if $old.$field != $new.$field {
-            $changes.push($change_t::$variant { old: &$old.$field, new: &$new.$field });
+            $changes.push($change_t::$variant { old: $old.$field.clone(), new: $new.$field.clone() });
         }
     };
 }
@@ -151,8 +157,8 @@ macro_rules! diff {
     };
 }
 
-impl<'a> AssignmentChanges<'a> {
-    fn diff(old: &'a Assignment, new: &'a Assignment) -> Option<AssignmentChanges<'a>> {
+impl AssignmentChanges {
+    fn diff(old: &Assignment, new: &Assignment) -> Option<AssignmentChanges> {
         let mut changes = Vec::new();
 
         diff!([
@@ -163,29 +169,29 @@ impl<'a> AssignmentChanges<'a> {
             score: ScoreChange,
             score_type: ScoreTypeChange,
             measure: TitleChange
-        ], AssignmentChange, changes, old, new);
+        ], AssignmentChange, changes, &old, &new);
 
         if changes.is_empty() {
             None
         } else {
             Some(AssignmentChanges {
-                old: Some(old),
-                new: Some(new),
+                old: Some(old.clone()),
+                new: Some(new.clone()),
                 changes: changes,
             })
         }
     }
 }
 
-impl<'a> CourseChanges<'a> {
-    fn diff(old: Option<&'a Course>, new: Option<&'a Course>) -> Option<CourseChanges<'a>> {
+impl CourseChanges {
+    fn diff(old: Option<&Course>, new: Option<&Course>) -> Option<CourseChanges> {
         if old.is_none() && new.is_none() {
             return None;
         }
 
         let mut course_changes = CourseChanges {
-            old: old,
-            new: new,
+            old: old.cloned(),
+            new: new.cloned(),
             assignment_changes: None,
             changes: None,
         };
@@ -198,7 +204,11 @@ impl<'a> CourseChanges<'a> {
                     period: PeriodChange,
                     staff: StaffChange,
                     staff_email: StaffEmailChange
-                ], CourseChange, changes, c1, c2);
+                ], CourseChange, changes, &c1, &c2);
+
+                if let Some(grade_change) = Self::diff_overall_grades(&c1.marks[0], &c2.marks[0]) {
+                    changes.push(grade_change);
+                }
 
                 let assignment_changes = Self::diff_assignments(&c1.marks[0], &c2.marks[0]);
 
@@ -229,7 +239,21 @@ impl<'a> CourseChanges<'a> {
         }
     }
 
-    fn diff_assignments(old: &'a Mark, new: &'a Mark) -> Vec<AssignmentChanges<'a>> {
+    fn diff_overall_grades(old: &Mark, new: &Mark) -> Option<CourseChange> {
+        let old_grade = old.calculated_grade();
+        let new_grade = new.calculated_grade();
+
+        if old_grade != new_grade {
+            Some(CourseChange::CalculatedGradeChange {
+                old: old_grade,
+                new: new_grade,
+            })
+        } else {
+            None
+        }
+    }
+
+    fn diff_assignments(old: &Mark, new: &Mark) -> Vec<AssignmentChanges> {
         let pairs = old.assignments().pair_with(new.assignments());
         pairs.iter().fold(Vec::new(), |mut acc, &(o, n)| {
             match (o, n) {
@@ -241,8 +265,8 @@ impl<'a> CourseChanges<'a> {
                 }
                 (Some(_), _) | (_, Some(_)) => {
                     acc.push(AssignmentChanges {
-                        old: o,
-                        new: n,
+                        old: o.cloned(),
+                        new: n.cloned(),
                         changes: vec![if o.is_none() {
                             AssignmentChange::Added
                         } else {

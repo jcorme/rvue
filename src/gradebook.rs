@@ -312,6 +312,12 @@ field_slice_helpers!(Mark, {
     standard_views => StandardView
 });
 
+impl Mark {
+    pub fn calculated_grade(&self) -> String {
+        format!("{} ({})", self.calculated_score_string, self.calculated_score_raw)
+    }
+}
+
 impl SVUEDecodeable for Mark {
     fn from_event(event: ReaderEvent, events_iter: &mut Events<&[u8]>) -> DecoderResult<Mark> {
         match event.clone() {
